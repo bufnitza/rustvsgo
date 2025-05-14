@@ -1,0 +1,23 @@
+[package]
+name = "grpc_rust_poc"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+tonic = "0.13.1"
+prost = "0.13.5"
+prost-types = "0.13.5"
+rand = "0.9.1"
+
+[build-dependencies]
+tonic-build = "0.13.1"
+
+[[bin]]
+name = "server"
+path = "src/server.rs"
+
+# client binary
+[[bin]]
+name = "client"
+path = "src/client.rs"
