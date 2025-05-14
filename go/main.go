@@ -38,7 +38,7 @@ func startStatsPrinter() {
 	go func() {
 		for {
 			time.Sleep(10 * time.Second)
-			count := atomic.LoadUint64(&requestCount)
+			count := atomic.SwapUint64(&requestCount, 0)
 			log.Printf("[Go Server] Total requests so far: %d", count)
 		}
 	}()

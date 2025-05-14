@@ -55,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         async move {
             loop {
                 sleep(Duration::from_secs(10)).await;
-                let total = counter.load(Ordering::Relaxed);
+                let total = counter.swap(0, Ordering::Relaxed);
                 println!("[Rust Server] Total requests so far: {}", total);
             }
         }
