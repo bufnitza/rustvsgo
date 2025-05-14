@@ -1,6 +1,8 @@
 use helloworld::greeter_client::GreeterClient;
 use helloworld::HelloRequest;
 use tokio::time::{sleep, Duration};
+use std::sync::Arc;
+use tokio::sync::Semaphore;
 
 pub mod helloworld {
     tonic::include_proto!("helloworld");
@@ -11,11 +13,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut count = 0;
 
+    let max_concurrent = 30_000;
+    let semaphore = Arc::new(Semaphore::new(max_concurrent));
+
     loop {
+        let permit = semaphore.clone().acquire_owned().await?;
         count += 1;
 
         tokio::spawn(async move {
-            let client_clone =GreeterClient::connect("http://172.18.1.11:5000").await.unwrap();
+            let client_clone =GreeterClient::connect("http://10.0.0.4:5000").await.unwrap();
 
             let request = tonic::Request::new(HelloRequest {
                 name: format!("User{}", count),
@@ -38,8 +44,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     eprintln!("[Thread {}] Request failed: {}", count, e);
                 }
             }
+
+            drop(permit);
         });
 
-        sleep(Duration::from_micros(1)).await;
+        //sleep(Duration::from_micros(1)).await;
     }
 }
